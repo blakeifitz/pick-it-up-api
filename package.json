@@ -1,5 +1,5 @@
 {
-  "name": "node_plate",
+  "name": "pick-it-up-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -14,17 +14,11 @@
     "deploy": "git push heroku main",
     "postdeploy": "npm run migrate:production"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/blakeifitz/Node_Plate.git"
-  },
+
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/blakeifitz/Node_Plate/issues"
-  },
-  "homepage": "https://github.com/blakeifitz/Node_Plate#readme",
+
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
