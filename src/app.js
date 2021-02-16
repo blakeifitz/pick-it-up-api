@@ -1,10 +1,12 @@
 require('dotenv').config();
 const express = require('express');
+const imgRouter = require('./image/img-router');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const authRouter = require('./auth/auth-router');
 const userRouter = require('./user/user-router');
+
 const { NODE_ENV } = require('./config');
 
 const app = express();
@@ -14,7 +16,10 @@ const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ extended: false }));
 
+app.use('/image', imgRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 
