@@ -6,6 +6,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const authRouter = require('./auth/auth-router');
 const userRouter = require('./user/user-router');
+const locationRouter = require('./location/location-router');
 
 const { NODE_ENV } = require('./config');
 
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ extended: false }));
 
 app.use('/image', imgRouter);
+app.use('/api/location', locationRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 

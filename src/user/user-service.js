@@ -1,27 +1,27 @@
+const REGEX_UPPER_LOWER_NUMBER_SPECIAL = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&])[\S]+/;
+const xss = require('xss');
 const bcrypt = require('bcryptjs');
 
-const REGEX_UPPER_LOWER_NUMBER_SPECIAL = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&])[\S]+/;
-
-const UserService = {
-  hasUserWithUserName(db, username) {
-    return db('user')
-      .where({ username })
+const UsersService = {
+  hasUserWithUserName(db, user_name) {
+    return db('users')
+      .where({ user_name })
       .first()
       .then((user) => !!user);
   },
   insertUser(db, newUser) {
     return db
       .insert(newUser)
-      .into('user')
+      .into('users')
       .returning('*')
       .then(([user]) => user);
   },
   validatePassword(password) {
     if (password.length < 8) {
-      return 'Password be longer than 8 characters';
+      return 'Password must be longer than 8 characters';
     }
     if (password.length > 72) {
-      return 'Password be less than 72 characters';
+      return 'Password must be less than 72 characters';
     }
     if (password.startsWith(' ') || password.endsWith(' ')) {
       return 'Password must not start or end with empty spaces';
@@ -37,47 +37,12 @@ const UserService = {
   serializeUser(user) {
     return {
       id: user.id,
-      name: user.name,
-      username: user.username,
+      full_name: xss(user.full_name),
+      user_name: xss(user.user_name),
+      nickname: xss(user.nick_name),
+      date_created: new Date(user.date_created),
     };
-  },
-  populateUserWords(db, user_id) {
-    return db.transaction(async (trx) => {
-      const [languageId] = await trx
-        .into('language')
-        .insert([{ name: 'French', user_id }], ['id']);
-
-      // when inserting words,
-      // we need to know the current sequence number
-      // so that we can set the `next` field of the linked language
-      const seq = await db.from('word_id_seq').select('last_value').first();
-
-      const languageWords = [
-        ['Bonjour', 'Hello', 2],
-        ['Oui', 'Yes', 3],
-        ['Amour', 'Love', 4],
-        ['Belle', 'Beautiful', 5],
-        ['Beau', 'Handsome', 6],
-        ['Jour', 'Day', 7],
-        ['Fort', 'Strong', 8],
-        ['Non', 'No', null],
-      ];
-
-      const [languageHeadId] = await trx.into('word').insert(
-        languageWords.map(([original, translation, nextInc]) => ({
-          language_id: languageId.id,
-          original,
-          translation,
-          next: nextInc ? Number(seq.last_value) + nextInc : null,
-        })),
-        ['id']
-      );
-
-      await trx('language').where('id', languageId.id).update({
-        head: languageHeadId.id,
-      });
-    });
   },
 };
 
-module.exports = UserService;
+module.exports = UsersService;
