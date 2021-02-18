@@ -1,6 +1,6 @@
 const express = require('express');
 const LocationService = require('./location-service');
-const { requireAuth } = require('../auth/jwt-auth');
+const { requireAuth } = require('../middleware/jwt-auth');
 const xss = require('xss');
 
 const locationRouter = express.Router();
