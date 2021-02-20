@@ -1,7 +1,7 @@
 const express = require('express');
 const ItemService = require('./item-service');
 const { requireAuth } = require('../middleware/jwt-auth');
-const xss = require('xss');
+const xss = require('xss')
 
 const itemRouter = express.Router();
 const jsonParser = express.json();

@@ -1,6 +1,6 @@
 const ItemService = {
   getAllItems(knex, user_id) {
-    return knex.from('items').where({ user_id }).select('*');
+    return knex.from('items', 'location').where({ user_id }).select('*');
   },
 };
 
