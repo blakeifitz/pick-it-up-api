@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const itemRouter = require('../src/item/item-router');
 
 function makeUsersArray() {
   return [
@@ -96,56 +97,70 @@ function makeCategoriesArray() {
   ];
 }
 
-function makeitemsArray(users, locations) {
+function makeItemsArray() {
   return [
     {
       id: 1,
-      keyword: 'First test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[0].id,
-      user_id: users[0].id,
+      name: 'First test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      category: 'Second test category!',
+      location: 1,
+      user_id: 1,
     },
     {
       id: 2,
-      keyword: 'Second test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[0].id,
-      user_id: users[1].id,
+      name: 'Second test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      location: 3,
+      category: 'Second test category!',
+      user_id: 2,
     },
     {
       id: 3,
-      keyword: 'Third test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[0].id,
-      user_id: users[2].id,
+      name: 'Third test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      location: 3,
+      category: 'Second test category!',
+      user_id: 3,
     },
     {
       id: 4,
-      keyword: 'Fourth test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[0].id,
-      user_id: users[3].id,
+      name: 'Fourth test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      category: 'First test category!',
+      location: 4,
+      user_id: 3,
     },
     {
       id: 5,
-      keyword: 'Fifth test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[1].id,
-      user_id: users[3].id,
+      name: 'Fifth test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      category: 'Third test category!',
+      location: 3,
+      user_id: 4,
     },
     {
       id: 6,
-      keyword: 'Sixth test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[1].id,
-      user_id: users[3].id,
+      name: 'Sixth test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      category: 'First test category!',
+      location: 3,
+      user_id: 4,
     },
     {
       id: 7,
-      keyword: 'Seventh test comment!',
-      definition: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      location: locations[3].id,
-      user_id: users[3].id,
+      name: 'Seventh test item!',
+      img_src: 'img src',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+      category: 'First test category!',
+      location: 2,
+      user_id: 2,
     },
   ];
 }
@@ -179,7 +194,9 @@ function cleanTables(db) {
 function makeFixtures() {
   const testUsers = makeUsersArray();
   const testLocations = makeLocationsArray();
-  return { testUsers, testLocations };
+  const testCategories = makeCategoriesArray();
+  const testItems = makeItemsArray();
+  return { testUsers, testLocations, testCategories, testItems };
 }
 
 function seedUsers(db, users) {
@@ -204,16 +221,20 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
   return `Bearer ${token}`;
 }
 
-function seedLocationsTables(db, users, locations, items = []) {
+function seedTables(db, users, locations, categories, items = []) {
   // use a transaction to group the queries and auto rollback on any failure
   return db.transaction(async (trx) => {
     await trx.into('users').insert(users);
     await trx.into('locations').insert(locations);
+    await trx.into('categories').insert(categories);
     // update the auto sequence to match the forced id values
     await Promise.all([
       trx.raw(`SELECT setval('users_id_seq', ?)`, [users[users.length - 1].id]),
       trx.raw(`SELECT setval('locations_id_seq', ?)`, [
         locations[locations.length - 1].id,
+      ]),
+      trx.raw(`SELECT setval('categories_id_seq', ?)`, [
+        categories[categories.length - 1].id,
       ]),
     ]);
     // only insert items if there are some, also update the sequence counter
@@ -262,44 +283,104 @@ function seedMaliciousLocation(db, user, location) {
     .then(() => db.into('locations').insert([location]));
 }
 
-function seedCategoriesTables(db, users, categories, items = []) {
-  // use a transaction to group the queries and auto rollback on any failure
-  return db.transaction(async (trx) => {
-    await trx.into('users').insert(users);
-    await trx.into('categories').insert(categories);
-    // update the auto sequence to match the forced id values
-    await Promise.all([
-      trx.raw(`SELECT setval('users_id_seq', ?)`, [users[users.length - 1].id]),
-      trx.raw(`SELECT setval('categories_id_seq', ?)`, [
-        categories[categories.length - 1].id,
-      ]),
-    ]);
-    // only insert items if there are some, also update the sequence counter
-    if (items.length) {
-      await trx.into('items').insert(items);
-      await trx.raw(`SELECT setval('items_id_seq', ?)`, [
-        items[items.length - 1].id,
-      ]);
-    }
-  });
-}
-
 function makeExpectedCategory(category) {
   return {
     title: category.title,
     id: category.id,
   };
 }
+
+function makeMaliciousCategory(user) {
+  const maliciousCategory = {
+    id: 911,
+    title: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    user_id: user.id,
+  };
+  const expectedCategory = {
+    ...makeExpectedCategory([user], maliciousCategory),
+    title:
+      'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
+  };
+  return {
+    maliciousCategory,
+    expectedCategory,
+  };
+}
+
+function seedMaliciousCategory(db, user, category) {
+  return db
+    .into('users')
+    .insert([user])
+    .then(() => db.into('categories').insert([category]));
+}
+
+function makeExpectedItem(item) {
+  return {
+    name: item.name,
+    id: item.id,
+    description: item.description,
+    img_src: item.img_src,
+    category: item.category,
+    location: item.location,
+  };
+}
+
+function makeMaliciousItem(user) {
+  const maliciousItem = {
+    id: 911,
+    location: 1,
+    category: 'First test category!',
+    name: 'Naughty naughty very naughty <script>alert("xss");</script>',
+    user_id: user.id,
+    img_src: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
+    description: 'This is a description',
+  };
+  const expectedItem = {
+    ...makeExpectedItem([user], maliciousItem),
+    name:
+      'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
+    img_src: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`,
+  };
+  return {
+    maliciousItem,
+    expectedItem,
+  };
+}
+
+function seedMaliciousItem(
+  db,
+  testUser,
+  testLocations,
+  testCategories,
+  maliciousItem
+) {
+  const testLocation = testLocations[0];
+  console.log('LOCATION', testLocation);
+  const testCategory = testCategories[0];
+  console.log('CATEGORY', testCategory);
+  console.log('ITEM', maliciousItem);
+  return db
+    .into('users')
+    .insert([testUser])
+    .then(() => db.into('locations').insert([testLocation]))
+    .then(() => db.into('categories').insert([testCategory]))
+    .then(() => db.into('items').insert(maliciousItem));
+}
+
 module.exports = {
   makeFixtures,
   cleanTables,
   seedUsers,
   makeAuthHeader,
-  seedLocationsTables,
+  seedTables,
   makeExpectedLocation,
   makeMaliciousLocation,
   makeUsersArray,
   seedMaliciousLocation,
-  seedCategoriesTables,
   makeExpectedCategory,
+  makeMaliciousCategory,
+  seedMaliciousCategory,
+  makeExpectedItem,
+  makeMaliciousItem,
+  seedMaliciousItem,
 };

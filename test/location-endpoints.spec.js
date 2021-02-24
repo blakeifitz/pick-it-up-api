@@ -5,7 +5,12 @@ const helpers = require('./test-helpers');
 describe('Locations Endpoints', function () {
   let db;
 
-  const { testUsers, testLocations } = helpers.makeFixtures();
+  const {
+    testUsers,
+    testLocations,
+    testCategories,
+    testItems,
+  } = helpers.makeFixtures();
 
   before('make knex instance', () => {
     db = knex({
@@ -34,7 +39,13 @@ describe('Locations Endpoints', function () {
 
     context('Given there are locations in the database', () => {
       beforeEach('insert locations', () =>
-        helpers.seedLocationsTables(db, testUsers, testLocations)
+        helpers.seedTables(
+          db,
+          testUsers,
+          testLocations,
+          testCategories,
+          testItems
+        )
       );
 
       it('responds with 200 and all of the Locations', () => {

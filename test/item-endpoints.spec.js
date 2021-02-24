@@ -2,7 +2,7 @@ const knex = require('knex');
 const app = require('../src/app');
 const helpers = require('./test-helpers');
 
-describe('Categories Endpoints', function () {
+describe('Items Endpoints', function () {
   let db;
 
   const {
@@ -26,19 +26,19 @@ describe('Categories Endpoints', function () {
 
   afterEach('cleanup', () => helpers.cleanTables(db));
 
-  describe(`GET /api/category`, () => {
-    context(`Given no categories`, () => {
+  describe(`GET /api/item`, () => {
+    context(`Given no items`, () => {
       beforeEach(() => helpers.seedUsers(db, testUsers));
       it(`responds with 200 and an empty list`, () => {
         return supertest(app)
-          .get('/api/category')
+          .get('/api/item')
           .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(200, []);
       });
     });
 
-    context('Given there are categories in the database', () => {
-      beforeEach('insert categories', () =>
+    context('Given there are items in the database', () => {
+      beforeEach('insert items', () =>
         helpers.seedTables(
           db,
           testUsers,
@@ -48,38 +48,41 @@ describe('Categories Endpoints', function () {
         )
       );
 
-      it('responds with 200 and all of the categories', () => {
-        const expectedCategory = testCategories.map((category) =>
-          helpers.makeExpectedCategory(category)
+      it('responds with 200 and all of the items', () => {
+        const expectedItem = testItems.map((item) =>
+          helpers.makeExpectedItem(item)
         );
         return supertest(app)
-          .get('/api/category')
+          .get('/api/item')
           .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-          .expect(200, [expectedCategory[0]]);
+          .expect(200, [expectedItem[0]]);
       });
     });
 
-    context(`Given an XSS attack category`, () => {
+    context(`Given an XSS attack item`, () => {
       const testUser = helpers.makeUsersArray()[0];
-      const {
-        maliciousCategory,
-        expectedCategory,
-      } = helpers.makeMaliciousCategory(testUser);
+      const { maliciousItem, expectedItem } = helpers.makeMaliciousItem(
+        testUser
+      );
 
-      beforeEach('insert malicious category', () => {
-        return helpers.seedMaliciousCategory(db, testUser, maliciousCategory);
+      beforeEach('insert malicious item', () => {
+        return helpers.seedMaliciousItem(
+          db,
+          testUser,
+          testLocations,
+          testCategories,
+          maliciousItem
+        );
       });
 
       it('removes XSS attack content', () => {
         return supertest(app)
-          .get(`/api/category`)
+          .get(`/api/item`)
           .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(200)
           .expect((res) => {
-            expect(res.body[0].title).to.eql(expectedCategory.title);
-            expect(res.body[0].description).to.eql(
-              expectedCategory.description
-            );
+            expect(res.body[0].keyword).to.eql(expectedItem.keyword);
+            expect(res.body[0].definition).to.eql(expectedItem.definition);
           });
       });
     });
