@@ -3,7 +3,7 @@ BEGIN;
 TRUNCATE
   users CASCADE;
 
-INSERT INTO users (user_name, full_name, password, id)
+INSERT INTO users (username, full_name, password, id)
 VALUES
   (
     'admin',
@@ -22,6 +22,10 @@ VALUES
      ('test 2', 'This is a test location', POINT(36.2564, -84.2284), 1, 2),
       ('test 3', 'This is a test location', POINT(36.3564, -84.3284), 1, 3);
 
+INSERT INTO categories (id, user_id, title )
+VALUES(1, 1, 'fossils'),
+(2, 1, 'foraging'),
+(3, 1, 'artifacts');
 
 INSERT INTO items (name, description, img_src, category, user_id, location)
 VALUES
