@@ -87,4 +87,35 @@ describe('Items Endpoints', function () {
       });
     });
   });
+  describe('POST /item', () => {
+    beforeEach('insert items', () =>
+      helpers.seedTables(db, testUsers, testLocations, testCategories)
+    );
+    it(`responds with 400 missing anything if not supplied`, () => {
+      const testUser = helpers.makeUsersArray()[0];
+      return supertest(app)
+        .post(`/api/item`)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(400, `{"error":{"message":"missing 'location'"}}`);
+    });
+    it('adds a new item to the store', () => {
+      const testUser = helpers.makeUsersArray()[0];
+      const newItem = {
+        name: 'First test item!',
+        img_src: 'img src',
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+        category: 'Second test category!',
+        location: 1,
+      };
+      return supertest(app)
+        .post(`/api/item`)
+        .send(newItem)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.name).to.eql(newItem.name);
+        });
+    });
+  });
 });

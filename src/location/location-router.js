@@ -27,5 +27,22 @@ locationRouter
         return res.json(locations.map(serializeLocation));
       })
       .catch(next);
+  })
+  .post(jsonParser, (req, res, next) => {
+    const knexInstance = req.app.get('db');
+    const { name, description, coordinates } = req.body;
+    const newLocation = { name, description, coordinates };
+    for (const [key, value] of Object.entries(newLocation))
+      if (value == null)
+        return res.status(400).json({
+          error: { message: `missing '${key}'` },
+        });
+    newLocation.user_id = req.user.id;
+
+    LocationService.addLocation(knexInstance, newLocation)
+      .then((location) => {
+        res.status(201).json(serializeLocation(location));
+      })
+      .catch(next);
   });
 module.exports = locationRouter;

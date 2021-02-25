@@ -84,4 +84,33 @@ describe('Locations Endpoints', function () {
       });
     });
   });
+  describe('POST /location', () => {
+    beforeEach(() => helpers.seedUsers(db, testUsers));
+    it(`responds with 400 missing if anything not supplied`, () => {
+      const testUser = helpers.makeUsersArray()[0];
+      return supertest(app)
+        .post(`/api/location`)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(400, `{"error":{"message":"missing 'name'"}}`);
+    });
+    it('adds a new location to the store', () => {
+      const testUser = helpers.makeUsersArray()[0];
+      const newLocation = {
+        coordinates: '(36.1564, -84.1284)',
+        description:
+          'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Natus consequuntur deserunt commodi, nobis qui inventore corrupti iusto aliquid debitis unde non.Adipisci, pariatur.Molestiae, libero esse hic adipisci autem neque ?',
+        id: 1,
+        name: 'First test!',
+        user_id: 1,
+      };
+      return supertest(app)
+        .post(`/api/location`)
+        .send(newLocation)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.title).to.eql(newLocation.title);
+        });
+    });
+  });
 });

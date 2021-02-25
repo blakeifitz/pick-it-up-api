@@ -84,4 +84,54 @@ describe('Categories Endpoints', function () {
       });
     });
   });
+  describe('POST /category', () => {
+    beforeEach(() => helpers.seedUsers(db, testUsers));
+    it(`responds with 400 missing  if  anything not supplied`, () => {
+      const testUser = helpers.makeUsersArray()[0];
+      return supertest(app)
+        .post(`/api/category`)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(400, `{"error":{"message":"missing 'title'"}}`);
+    });
+    it('adds a new category to the db', () => {
+      const testUser = helpers.makeUsersArray()[0];
+      const newCategory = {
+        title: 'test-title',
+      };
+      return supertest(app)
+        .post(`/api/category`)
+        .send(newCategory)
+        .set('Authorization', helpers.makeAuthHeader(testUser))
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.title).to.eql(newCategory.title);
+        });
+    });
+  });
+  describe('DELETE /category/:category_title', () => {
+    beforeEach('insert categories', () =>
+      helpers.seedTables(
+        db,
+        testUsers,
+        testLocations,
+        testCategories,
+        testItems
+      )
+    );
+    it('removes category by title from the db', () => {
+      const secondCategory = testCategories[0];
+      console.log('CATEGORY', secondCategory);
+      return supertest(app)
+        .delete(`/category/${secondCategory.title}`)
+        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+        .expect(204);
+    });
+
+    it(`returns 404 when category doesn't exist`, () => {
+      return supertest(app)
+        .delete(`/category/doesnt-exist`)
+        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+        .expect(404, 'Category Not Found');
+    });
+  });
 });
