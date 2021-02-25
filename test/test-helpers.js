@@ -76,22 +76,22 @@ function makeCategoriesArray() {
   return [
     {
       id: 1,
-      title: 'First test category!',
+      title: 'First test category',
       user_id: 1,
     },
     {
       id: 2,
-      title: 'Second test category!',
+      title: 'Second test category',
       user_id: 2,
     },
     {
       id: 3,
-      title: 'Third test category!',
+      title: 'Third test category',
       user_id: 3,
     },
     {
       id: 4,
-      title: 'Fourth test category!',
+      title: 'Fourth test category',
       user_id: 3,
     },
   ];
@@ -104,7 +104,7 @@ function makeItemsArray() {
       name: 'First test item!',
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      category: 'Second test category!',
+      category: 'Second test category',
       location: 1,
       user_id: 1,
     },
@@ -114,7 +114,7 @@ function makeItemsArray() {
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
       location: 3,
-      category: 'Second test category!',
+      category: 'Second test category',
       user_id: 2,
     },
     {
@@ -123,7 +123,7 @@ function makeItemsArray() {
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
       location: 3,
-      category: 'Second test category!',
+      category: 'Second test category',
       user_id: 3,
     },
     {
@@ -131,7 +131,7 @@ function makeItemsArray() {
       name: 'Fourth test item!',
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      category: 'First test category!',
+      category: 'First test category',
       location: 4,
       user_id: 3,
     },
@@ -140,7 +140,7 @@ function makeItemsArray() {
       name: 'Fifth test item!',
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      category: 'Third test category!',
+      category: 'Third test category',
       location: 3,
       user_id: 4,
     },
@@ -149,7 +149,7 @@ function makeItemsArray() {
       name: 'Sixth test item!',
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      category: 'First test category!',
+      category: 'First test category',
       location: 3,
       user_id: 4,
     },
@@ -158,7 +158,7 @@ function makeItemsArray() {
       name: 'Seventh test item!',
       img_src: 'img src',
       description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-      category: 'First test category!',
+      category: 'First test category',
       location: 2,
       user_id: 2,
     },
@@ -329,7 +329,7 @@ function makeMaliciousItem(user) {
   const maliciousItem = {
     id: 911,
     location: 1,
-    category: 'First test category!',
+    category: 'First test category',
     name: 'Naughty naughty very naughty <script>alert("xss");</script>',
     user_id: user.id,
     img_src: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
@@ -355,10 +355,7 @@ function seedMaliciousItem(
   maliciousItem
 ) {
   const testLocation = testLocations[0];
-  console.log('LOCATION', testLocation);
   const testCategory = testCategories[0];
-  console.log('CATEGORY', testCategory);
-  console.log('ITEM', maliciousItem);
   return db
     .into('users')
     .insert([testUser])

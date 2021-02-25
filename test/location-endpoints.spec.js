@@ -113,4 +113,32 @@ describe('Locations Endpoints', function () {
         });
     });
   });
+  describe(`DELETE /location/:id`, () => {
+    beforeEach('insert locations', () =>
+      helpers.seedTables(
+        db,
+        testUsers,
+        testLocations,
+        testCategories,
+        testItems
+      )
+    );
+    context(`Given location that doesn't exist`, () => {
+      it(`responds with 404`, () => {
+        return supertest(app)
+          .delete(`/api/location/12345`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `That location doesn't exist` } });
+      });
+    });
+
+    context('Given there are articles in the database', () => {
+      it('responds with 204', () => {
+        return supertest(app)
+          .delete(`/api/location/${testLocations[0].id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(204);
+      });
+    });
+  });
 });

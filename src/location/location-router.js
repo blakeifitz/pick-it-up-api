@@ -45,4 +45,37 @@ locationRouter
       })
       .catch(next);
   });
+locationRouter
+  .route('/:location_id')
+  .all(requireAuth)
+  .all((req, res, next) => {
+    const knexInstance = req.app.get('db');
+    const user_id = req.user.id;
+    LocationService.getById(knexInstance, req.params.location_id, user_id)
+      .then((location) => {
+        if (!location) {
+          return res.status(404).json({
+            error: {
+              message: `That location doesn't exist`,
+            },
+          });
+        }
+        res.location = location;
+        next();
+      })
+      .catch(next);
+  })
+
+  .delete((req, res, next) => {
+    const user_id = req.user.id;
+    LocationService.deleteLocation(
+      req.app.get('db'),
+      req.params.location_id,
+      user_id
+    )
+      .then(() => {
+        return res.status(204).end();
+      })
+      .catch(next);
+  });
 module.exports = locationRouter;

@@ -52,4 +52,56 @@ itemRouter
       })
       .catch(next);
   });
+itemRouter
+  .route('/:item_id')
+  .all(requireAuth)
+  .all((req, res, next) => {
+    const knexInstance = req.app.get('db');
+    const user_id = req.user.id;
+    ItemService.getById(knexInstance, req.params.item_id, user_id)
+      .then((item) => {
+        if (!item) {
+          return res.status(404).json({
+            error: {
+              message: `That item doesn't exist`,
+            },
+          });
+        }
+        res.item = item;
+        next();
+      })
+      .catch(next);
+  })
+
+  .delete((req, res, next) => {
+    const user_id = req.user.id;
+    ItemService.deleteItem(req.app.get('db'), req.params.item_id, user_id)
+      .then(() => {
+        return res.status(204).end();
+      })
+      .catch(next);
+  })
+  .patch(jsonParser, (req, res, next) => {
+    const { name, description } = req.body;
+    const updatedItem = { name, description };
+    const user_id = req.user.id;
+
+    const numberOfValues = Object.values(updatedItem).filter(Boolean).length;
+    if (numberOfValues === 0)
+      return res.status(400).json({
+        error: {
+          message: "Request body must content either 'name', or 'description'.",
+        },
+      });
+    ItemService.updateItem(
+      req.app.get('db'),
+      req.params.item_id,
+      updatedItem,
+      user_id
+    )
+      .then((rows) => {
+        return res.status(204).end();
+      })
+      .catch(next);
+  });
 module.exports = itemRouter;

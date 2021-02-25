@@ -105,7 +105,7 @@ describe('Items Endpoints', function () {
         img_src: 'img src',
         description:
           'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-        category: 'Second test category!',
+        category: 'Second test category',
         location: 1,
       };
       return supertest(app)
@@ -116,6 +116,96 @@ describe('Items Endpoints', function () {
         .expect((res) => {
           expect(res.body.name).to.eql(newItem.name);
         });
+    });
+  });
+  describe(`DELETE /item/:id`, () => {
+    beforeEach('insert items', () =>
+      helpers.seedTables(
+        db,
+        testUsers,
+        testLocations,
+        testCategories,
+        testItems
+      )
+    );
+    context(`Given item that doesn't exist`, () => {
+      it(`responds with 404`, () => {
+        return supertest(app)
+          .delete(`/api/item/12345`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `That item doesn't exist` } });
+      });
+    });
+
+    context('Given there are items in the database', () => {
+      it('responds with 204', () => {
+        return supertest(app)
+          .delete(`/api/item/${testItems[0].id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(204);
+      });
+    });
+  });
+  describe(`PATCH /api/items/:item_id`, () => {
+    beforeEach('insert items', () =>
+      helpers.seedTables(
+        db,
+        testUsers,
+        testLocations,
+        testCategories,
+        testItems
+      )
+    );
+    context(`Given item that doesn't exist`, () => {
+      it(`responds with 404`, () => {
+        return supertest(app)
+          .patch(`/api/item/12345`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `That item doesn't exist` } });
+      });
+    });
+    context('Given there are items in the database', () => {
+      it('responds with 204 and updates the item', () => {
+        const updateItem = {
+          name: 'updated item name',
+          description: 'Interview',
+        };
+        console.log(
+          'TESTITEMS)))))) 000000000000000000000000000000',
+          testUsers[0].id
+        );
+        return supertest(app)
+          .patch(`/api/item/${testItems[0].id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .send(updateItem)
+          .expect(204);
+      });
+
+      it(`responds with 400 when no required fields supplied`, () => {
+        return supertest(app)
+          .patch(`/api/item/${testItems[0].id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .send({ irrelevantField: 'foo' })
+          .expect(400, {
+            error: {
+              message: `Request body must content either 'name', or 'description'.`,
+            },
+          });
+      });
+
+      it(`responds with 204 when updating only a subset of fields`, () => {
+        const updateItem = {
+          name: 'updated item name',
+        };
+        return supertest(app)
+          .patch(`/api/item/${testItems[0].id}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .send({
+            ...updateItem,
+            fieldToIgnore: 'should not be in GET response',
+          })
+          .expect(204);
+      });
     });
   });
 });

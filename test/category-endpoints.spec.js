@@ -108,7 +108,7 @@ describe('Categories Endpoints', function () {
         });
     });
   });
-  describe('DELETE /category/:category_title', () => {
+  describe(`DELETE /category/:title`, () => {
     beforeEach('insert categories', () =>
       helpers.seedTables(
         db,
@@ -118,20 +118,22 @@ describe('Categories Endpoints', function () {
         testItems
       )
     );
-    it('removes category by title from the db', () => {
-      const secondCategory = testCategories[0];
-      console.log('CATEGORY', secondCategory);
-      return supertest(app)
-        .delete(`/category/${secondCategory.title}`)
-        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-        .expect(204);
+    context(`Given category that doesn't exist`, () => {
+      it(`responds with 404`, () => {
+        return supertest(app)
+          .delete(`/api/category/12345`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(404, { error: { message: `That category doesn't exist` } });
+      });
     });
 
-    it(`returns 404 when category doesn't exist`, () => {
-      return supertest(app)
-        .delete(`/category/doesnt-exist`)
-        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-        .expect(404, 'Category Not Found');
+    context('Given there are articles in the database', () => {
+      it('responds with 204', () => {
+        return supertest(app)
+          .delete(`/api/category/${testCategories[0].title}`)
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
+          .expect(204);
+      });
     });
   });
 });

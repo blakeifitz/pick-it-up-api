@@ -51,13 +51,31 @@ categoryRouter
   });
 categoryRouter
 
-  .route('/:category_title')
+  .route('/:title')
   .all(requireAuth)
+  .all((req, res, next) => {
+    const knexInstance = req.app.get('db');
+    const user_id = req.user.id;
+    categoryService
+      .getByTitle(knexInstance, req.params.title, user_id)
+      .then((category) => {
+        if (!category) {
+          return res.status(404).json({
+            error: {
+              message: `That category doesn't exist`,
+            },
+          });
+        }
+        res.category = category;
+        next();
+      })
+      .catch(next);
+  })
 
   .delete((req, res, next) => {
     const user_id = req.user.id;
     categoryService
-      .deleteCategory(req.app.get('db'), req.params.category_title, user_id)
+      .deleteCategory(req.app.get('db'), req.params.title, user_id)
       .then(() => {
         return res.status(204).end();
       })
