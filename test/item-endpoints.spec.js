@@ -170,10 +170,6 @@ describe('Items Endpoints', function () {
           name: 'updated item name',
           description: 'Interview',
         };
-        console.log(
-          'TESTITEMS)))))) 000000000000000000000000000000',
-          testUsers[0].id
-        );
         return supertest(app)
           .patch(`/api/item/${testItems[0].id}`)
           .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
