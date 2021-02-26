@@ -32,7 +32,6 @@ categoryRouter
     const knexInstance = req.app.get('db');
     const { title } = req.body;
     const newCategory = { title };
-
     for (const [key, value] of Object.entries(newCategory))
       if (value == null)
         return res.status(400).json({
@@ -44,7 +43,7 @@ categoryRouter
       .then((category) => {
         res
           .status(201)
-          .location(path.join(req.originalUrl, `/${category.name}`))
+          .location(path.join(req.originalUrl, `/${category.title}`))
           .json(serializeCategory(category));
       })
       .catch(next);
