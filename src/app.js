@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ extended: false }));
 
-app.use('/image', imgRouter);
+app.use('/api/image', imgRouter);
 app.use('/api/location', locationRouter);
 app.use('/api/category', categoryRouter);
 app.use('/api/item', itemRouter);
