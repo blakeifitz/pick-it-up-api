@@ -36,7 +36,7 @@ itemRouter
     const newItem = { location, name, img_src, description, category };
 
     for (const [key, value] of Object.entries(newItem))
-      if (value == null)
+      if (value == null || value === '')
         return res.status(400).json({
           error: { message: `missing '${key}'` },
         });

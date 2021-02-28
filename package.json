@@ -10,6 +10,7 @@
     "migrate": "postgrator --config postgrator-config.js",
     "migrate:production": "DATABASE_URL=$(heroku config:get DATABASE_URL) npm run migrate",
     "migrate:test": "env NODE_ENV=test npm run migrate",
+    "seed": "psql -U blakefitzpatrick -d pick-it-up -f ./seeds/seed.tables.sql",
     "deploy": "git push heroku main"
   },
   "keywords": [],
