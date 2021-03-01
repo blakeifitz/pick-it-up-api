@@ -1,26 +1,35 @@
-# Express Boilerplate!
+# Pick-It-Up API
 
-This is a boilerplate project used for starting new projects!
+Client Repo: https://github.com/blakeifitz/pick-it-up-client
+Live App: https://github.com/blakeifitz/pick-it-up-client
 
-## Set up
+<img src="src/media/screenshot-list.png" alt="screenshot" width="300"/>
+<img src="src/media/screenshot-fossil.png" alt="screenshot" width="400"/>
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
+This app was created to keep track of a users finds when they are out hunting.
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
+A lot of my hobbies include going to different places to find a variety of items. I like to metal detect, arrowhead hunt, mushroom hunt, and fossil hunting. Over the years I have collected
+lots of items. Over time I forget exactly where I found things or what stratigraphic age they are. With this app a user can save details about items, the location they were found, and the category of item they are. A user can choose to add to previous locations or add a new one using a React Leaflet Map. A user can save a photo, notes, and a location for each item. There is a list of all a user's items. Those items can be clicked on to see a detailed view with item and location info. A user can view stratigraphic data for the coordinates of their locations. I used Macrostrat API ( https://macrostrat.org/ ) to accomplish this.
 
-## Scripts
+| Method |     Path      |                                   Usage |
+| :----- | :-----------: | --------------------------------------: |
+| POST   |   /api/user   |                       User registration |
+| POST   |   /api/auth   | Manages authorization and authenication |
+| GET    | /api/category |                 Get all user categories |
+| POST   | /api/category |                Adds a category for user |
+| GET    | /api/category |                 Get all user categories |
+| DELETE | /api/category |                  Deletes category by Id |
+| POST   | /api/location |                   Add location for user |
+| GET    | /api/location |                  Get all user locations |
+| DELETE | /api/location |                  Deletes location by Id |
+| POST   |   /api/item   |                       Add item for user |
+| GET    |   /api/item   |                      Get all user items |
+| DELETE |   /api/item   |                      Deletes item by Id |
 
-Start the application `npm start`
+### This app was created with:
 
-Start nodemon for the application `npm run dev`
-
-Run the tests `npm test`
-
-## Deploying
-
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's main branch.
+<img align="left" alt="Visual Studio Code" width="26px" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/visual-studio-code/visual-studio-code.png" />
+<img align="left" alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+<img align="left" alt="NodeJS" src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" />
+<img align="left" alt="ExpressJS" src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" />
+<img align="left" alt="Heroku" src="https://img.shields.io/badge/Heroku-430098?style=for-the-badge&logo=heroku&logoColor=white" />
